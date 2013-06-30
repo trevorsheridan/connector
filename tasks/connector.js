@@ -25,7 +25,7 @@ module.exports = function(grunt) {
     
     this.async();
     
-    // Setup the 
+    // Set the templating engine configuration.
     application.set('views', options.templates);
     application.set('view engine', 'html');
     application.engine('html', engines[options.templateEngine]);
