@@ -17,27 +17,26 @@ module.exports = function(grunt) {
     var application = express();
     
     var options = this.options({
-      assets: process.cwd() + '/public',
+      assets: '/public',
       port: process.env.PORT || 3000,
-      templates: process.cwd() + '/source/templates',
-      templateEngine: 'hogan',
+      templates: '/source/templates',
+      templateEngine: 'hogan'
     });
     
     this.async();
     
     // Set the templating engine configuration.
-    application.set('views', options.templates);
+    application.set('views', process.cwd() + '/' + options.templates);
     application.set('view engine', 'html');
     application.engine('html', engines[options.templateEngine]);
     
     // Serve static assets from the public directory (falls back to this if development is on and recompiling less).
-    application.use(express.static(options.assets));
+    application.use(express.static(process.cwd() + '/' + options.assets));
     
     // Catch all other requests and route to the appropriate template.
     application.use(function(request, response) {
       var path = request._parsedUrl.pathname;
-      var files = utility.listing(application.get('views'));
-      var template = utility.find(files, path.split('/'), 'index') || 404;
+      var template = utility.find(utility.listing(application.get('views')), path.split('/'), 'index') || 404;
       
       grunt.log.ok("Responding to " + path + " with template " + template + "".green);
       response.status(typeof template === 'number' ? template : 200).render(template);
