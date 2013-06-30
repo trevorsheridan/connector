@@ -22,8 +22,7 @@
   ],
   "main": "Gruntfile.js",
   "engines": {
-    "node": ">= 0.8.0",
-    "npm": "1.1.x"
+    "node": ">= 0.8.0"
   },
   "scripts": {
     "test": "grunt test"
