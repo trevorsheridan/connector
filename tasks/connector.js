@@ -14,33 +14,36 @@ module.exports = function(grunt) {
   grunt.registerTask('connector', 'Prototyping server for the modern man.', function() {
     var express = require('express');
     var engines = require('consolidate');
-    var server = express();
+    var application = express();
     
     var options = this.options({
-      port: process.env.PORT || 3000,
       assets: process.cwd() + '/public',
-      templates: process.cwd() + '/source/views',
-      templating: 'hogan'
+      port: process.env.PORT || 3000,
+      templates: process.cwd() + '/source/templates',
+      templateEngine: 'hogan',
     });
     
-    // set the templating engine configuration
-    server.set('views', options.templates);
-    server.set('view engine', 'html');
-    server.engine('html', engines[options.templating]);
+    this.async();
     
-    // serve static assets from the public directory (falls back to this if development is on and recompiling less)
-    server.use(express.static(options.assets));
+    // Setup the 
+    application.set('views', options.templates);
+    application.set('view engine', 'html');
+    application.engine('html', engines[options.templateEngine]);
     
-    // catch all other requests and route to the appropriate template
-    server.use(function(request, response) {
-      // get the directory listing for views, split the path into an array of components, index is the directory index.
-      var template = utility.find(utility.listing(server.get('views')), request._parsedUrl.pathname.split('/'), 'index');
-      var partials = { header: "a header", footer: "the footer" };
+    // Serve static assets from the public directory (falls back to this if development is on and recompiling less).
+    application.use(express.static(options.assets));
+    
+    // Catch all other requests and route to the appropriate template.
+    application.use(function(request, response) {
+      var path = request._parsedUrl.pathname;
+      var files = utility.listing(application.get('views'));
+      var template = utility.find(files, path.split('/'), 'index') || 404;
       
-      response.status(template ? 200 : 404).render(template || '404', partials);
+      grunt.log.ok("Responding to " + path + " with template " + template + "".green);
+      response.status(typeof template === 'number' ? template : 200).render(template);
     });
     
-    // server is setup, start listening!
-    server.listen(options.port);
+    application.listen(options.port);
+    grunt.log.ok("Server listening for incoming connections on port " + options.port + "".green);
   });
 };
