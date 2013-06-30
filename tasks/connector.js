@@ -16,15 +16,20 @@ module.exports = function(grunt) {
     var engines = require('consolidate');
     var server = express();
     
-    var options = this.options({ port: process.env.PORT || 3000, base: process.cwd() + '/public', source: process.cwd() + '/source/views', templating: 'hogan' });
+    var options = this.options({
+      port: process.env.PORT || 3000,
+      assets: process.cwd() + '/public',
+      templates: process.cwd() + '/source/views',
+      templating: 'hogan'
+    });
     
     // set the templating engine configuration
-    server.engine('html', engines[options.templating]);
-    server.set('views', options.source);
+    server.set('views', options.templates);
     server.set('view engine', 'html');
+    server.engine('html', engines[options.templating]);
     
     // serve static assets from the public directory (falls back to this if development is on and recompiling less)
-    server.use(express.static(options.base));
+    server.use(express.static(options.assets));
     
     // catch all other requests and route to the appropriate template
     server.use(function(request, response) {
